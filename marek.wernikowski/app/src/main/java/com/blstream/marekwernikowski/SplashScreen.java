@@ -1,19 +1,41 @@
 package com.blstream.marekwernikowski;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Handler;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 
-public class MainActivity extends ActionBarActivity {
+public class SplashScreen extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
+        setContentView(R.layout.splash_screen);
 
+        final int DELAY = 5000;
+        final Handler splashHandler = new Handler();
+        splashHandler.postDelayed(new Runnable() {
+            public void run() {
+                startActivity(new Intent(SplashScreen.this, MainScreen.class));
+                finish();
+            }
+        }, DELAY);
+
+        Button backButton = (Button)findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                splashHandler.removeCallbacksAndMessages(null);
+            }
+        });
+
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
