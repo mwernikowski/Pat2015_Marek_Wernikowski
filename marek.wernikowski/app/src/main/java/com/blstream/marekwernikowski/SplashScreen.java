@@ -6,35 +6,29 @@ import android.os.Handler;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
 
 public class SplashScreen extends Activity {
 
+    private Handler splashHandler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_screen);
 
         final int DELAY = 5000;
-        final Handler splashHandler = new Handler();
+        splashHandler = new Handler();
         splashHandler.postDelayed(new Runnable() {
             public void run() {
                 startActivity(new Intent(SplashScreen.this, MainScreen.class));
                 finish();
             }
         }, DELAY);
+    }
 
-        Button backButton = (Button)findViewById(R.id.back_button);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                splashHandler.removeCallbacksAndMessages(null);
-            }
-        });
-
-
+    @Override
+    public void onBackPressed() {
+        splashHandler.removeCallbacksAndMessages(null);
     }
 
     @Override
