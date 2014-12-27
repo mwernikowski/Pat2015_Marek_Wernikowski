@@ -1,39 +1,45 @@
 package com.blstream.marekwernikowski;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 
 public class MainScreen extends Activity {
 
+    private Button logoutButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_screen);
+
+        TextView loginInfo = (TextView) findViewById(R.id.logged_in);
+        SharedPreferences preferences = getSharedPreferences("AUTHENTICATION", 0);
+        loginInfo.setText("Zalogowano jako " + preferences.getString("email", ""));
+
+        logoutButton = (Button) findViewById(R.id.logout_button);
+        logoutButton.setOnClickListener(logoutHandler);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    View.OnClickListener logoutHandler = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            SharedPreferences preferences = getSharedPreferences("AUTHENTICATION", 0);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.remove("email");
+            editor.remove("password");
+            editor.commit();
+            startActivity(new Intent(MainScreen.this, LoginScreen.class));
+            finish();
         }
+    };
 
-        return super.onOptionsItemSelected(item);
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 }
