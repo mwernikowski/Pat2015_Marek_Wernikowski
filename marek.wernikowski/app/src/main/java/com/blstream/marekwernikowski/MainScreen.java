@@ -13,21 +13,19 @@ import android.widget.TextView;
 
 import com.androidquery.util.AQUtility;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import java.util.List;
 
 
 public class MainScreen extends Activity {
 
-    private Button logoutButton;
     private ProgressBar progressBar;
     private ListView jsonList;
-    //private JsonCustomList jsonCustomList;
+    private Integer currentFile;
     public static JsonCustomList jsonCustomList = null;
     public static boolean loading = false;
+    public static boolean allLoaded = false;
 
-    //public final static String BASE_SERVER_URL = "http://10.0.2.2:8080";
     public final static String BASE_SERVER_URL = "http://192.168.0.33:8080";
 
     public ProgressBar getProgressBar() {
@@ -44,26 +42,26 @@ public class MainScreen extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_screen);
 
+        Button logoutButton;
+
         TextView loginInfo = (TextView) findViewById(R.id.logged_in);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        //TextView jsonInfo = (TextView) findViewById(R.id.json_file);
 
         jsonList = (ListView) findViewById(R.id.json_list);
         SharedPreferences preferences = getSharedPreferences("AUTHENTICATION", 0);
 
 
-
-        //JSONObject jsonObject = jsonParser.getJsonObject();
+        currentFile = 1;
         try {
+            progressBar.setVisibility(View.VISIBLE);
             new JsonParser(MainScreen.this).execute(BASE_SERVER_URL + "/page_0.json");
         } catch (Exception e) {
-            throw new RuntimeException(e);//, null, null);
+            throw new RuntimeException(e);
         }
-
-
 
         jsonList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
@@ -73,9 +71,23 @@ public class MainScreen extends Activity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0 && !loading) {
+                if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0 && !loading && !allLoaded) {
+                    progressBar.setVisibility(View.VISIBLE);
                     loading = true;
-                    new JsonParser(MainScreen.this).execute(BASE_SERVER_URL + "/page_1.json");
+                    List<Element> list;
+                    try {
+                        list = new JsonParser(MainScreen.this).execute(BASE_SERVER_URL + "/page_" + currentFile.toString() + ".json").get();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (list == null){
+                        allLoaded = true;
+                        progressBar.setVisibility(View.GONE);
+                    }
+                    else {
+                        currentFile++;
+
+                    }
                 }
             }
         });
@@ -93,7 +105,7 @@ public class MainScreen extends Activity {
             SharedPreferences.Editor editor = preferences.edit();
             editor.remove("email");
             editor.remove("password");
-            editor.commit();
+            editor.apply();
             startActivity(new Intent(MainScreen.this, LoginScreen.class));
             finish();
         }

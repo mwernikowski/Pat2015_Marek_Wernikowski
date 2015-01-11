@@ -1,18 +1,15 @@
 package com.blstream.marekwernikowski;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpRetryException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,18 +45,19 @@ public class JsonParser extends AsyncTask<String, Void, List<Element>>{
     }
     @Override
     protected void onPreExecute() {
-        progressBar.setVisibility(View.VISIBLE);
+
     }
 
     @Override
     protected ArrayList<Element> doInBackground(String... args) {
 
         jsonObject = getJsonFromUrl(args[0]);
-        jsonList = new ArrayList<Element>();
-        if (((MainScreen)activity).jsonCustomList == null) {
-            ((MainScreen)activity).jsonCustomList = new JsonCustomList(activity, jsonList);
+        if (jsonObject == null)
+            return null;
+        jsonList = new ArrayList<>();
+        if (MainScreen.jsonCustomList == null) {
+            MainScreen.jsonCustomList = new JsonCustomList(activity, jsonList);
         }
-        int size = ((MainScreen)activity).jsonCustomList.getCount();
 
         try {
             JSONArray jsonArray = jsonObject.getJSONArray("array");
@@ -72,8 +69,6 @@ public class JsonParser extends AsyncTask<String, Void, List<Element>>{
                 String iconLink = row.getString("url");
                 Element element = new Element(title, description, iconLink);
                 jsonList.add(element);
-                //((MainScreen)activity).getJsonCustomList().add(element);
-                size = ((MainScreen)activity).jsonCustomList.getCount();
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);
@@ -86,25 +81,28 @@ public class JsonParser extends AsyncTask<String, Void, List<Element>>{
     @Override
     protected void onPostExecute(List<Element> jsonList) {
 
+        if (jsonList == null)
+            return;
         JsonCustomList jsonCustomList = ((MainScreen)activity).getJsonCustomList();
         listView.setAdapter(jsonCustomList);
-        //for (int i = 0; i < jsonList.size(); i++)
-        //    jsonCustomList.insert(jsonList.get(i), jsonCustomList.getCount());
         ((MainScreen)activity).getJsonCustomList().addAll(jsonList);
-        listView.setAdapter(((MainScreen)activity).jsonCustomList);
-        ((MainScreen)activity).jsonCustomList.notifyDataSetChanged();
+        listView.setAdapter(MainScreen.jsonCustomList);
         progressBar.setVisibility(View.GONE);
-        ((MainScreen)activity).loading = false;
+
+        MainScreen.loading = false;
     }
 
     public static JSONObject getJsonFromUrl(String url) {
-        InputStream inputStream = null;
-        String jsonString = "";
-        JSONObject jsonObject = null;
+        InputStream inputStream;
+        String jsonString;
+        JSONObject jsonObject;
         try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpGet httpGet = new HttpGet(url);
             HttpResponse httpResponse = httpClient.execute(httpGet);
+            if (httpResponse.getStatusLine().getStatusCode() == 404)
+                return null;
+
             HttpEntity httpEntity = httpResponse.getEntity();
             inputStream = httpEntity.getContent();
         } catch (IOException e) {
@@ -114,9 +112,9 @@ public class JsonParser extends AsyncTask<String, Void, List<Element>>{
         try {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "utf-8"));
             StringBuilder stringBuilder = new StringBuilder();
-            String jsonLine = null;
+            String jsonLine;
             while ((jsonLine = bufferedReader.readLine()) != null)
-                stringBuilder.append(jsonLine + "\n");
+                stringBuilder.append(jsonLine).append("\n");
             inputStream.close();
             jsonString = stringBuilder.toString();
         } catch (IOException e) {

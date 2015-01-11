@@ -14,12 +14,13 @@ public class LoginScreen extends Activity {
 
     private EditText email = null;
     private EditText password = null;
-    private Button loginButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_screen);
 
+        Button loginButton;
         email = (EditText) findViewById(R.id.email);
         password = (EditText) findViewById(R.id.password);
         loginButton = (Button) findViewById(R.id.login_button);
@@ -69,7 +70,7 @@ public class LoginScreen extends Activity {
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.putString("email", email.getText().toString());
                 editor.putString("password", password.getText().toString());
-                editor.commit();
+                editor.apply();
                 startActivity(new Intent(LoginScreen.this, MainScreen.class));
                 finish();
             }

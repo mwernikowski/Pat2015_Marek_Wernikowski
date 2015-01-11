@@ -35,12 +35,12 @@
         android:layout_marginTop="5dp"
         android:padding="2dp"
         android:textColor="#ff85adff"
-        android:text="Title"/>
+        android:text=""/>
     <TextView
         android:id="@+id/desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Description"
+        android:text=""
         android:layout_marginLeft="10dp"/>
     </LinearLayout>
 

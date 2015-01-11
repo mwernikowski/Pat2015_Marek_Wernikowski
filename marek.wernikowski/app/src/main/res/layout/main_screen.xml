@@ -19,17 +19,22 @@
         android:id="@+id/logout_button"
         android:layout_gravity="center_horizontal" />
 
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/json_list"
-        android:layout_gravity="center_horizontal" />
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:visibility="invisible"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/json_list"
+            android:layout_gravity="center_horizontal" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="fill_parent"
+            android:visibility="invisible"
+            android:layout_height="fill_parent"
+            android:layout_gravity="center" />
+    </RelativeLayout>
 
 </LinearLayout>
